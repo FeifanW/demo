@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>手写轮播图</title>
+  <style> 
+    /*清除浏览器默认样式 */
+    *{
+      margin: 0;
+      padding: 0;
+    } 
+    /* 设置outer的样式 */
+    #outer{
+      /* 设置宽和高 */
+      /* position: absolute; */
+      width: 520px;
+      height: 333px;
+      /* 居中 */
+      margin: 50px auto;
+      /* 设置背景颜色 */
+      background-color: yellowgreen;
+      padding: 10px 0;
+      /* 父元素开启相对定位 */
+      position: relative;
+      /* 裁剪溢出的部分 */
+      overflow: hidden; 
+    }
+    #imgList{
+      /* 去除小圆点 */
+      list-style: none;
+      /* 不能显示在一行 */
+      /* width: 2600px; */
+      /* 给子元素开启绝对定位 */
+      position: absolute;
+
+    }
+    /* 设置图片的li */
+    #imgList li{
+      /* 设置浮动 */
+      float: left;
+      /* 设置左右外边距 */
+      margin: 0 10px;
+    }
+
+    img{
+      width: 500px;
+      height: 333px;
+    }
+    /* 设置导航按钮 */
+    #navDiv{
+      /* 开启绝对定位 */
+      position: absolute;
+      /* 设置位置 */
+      bottom: 15px;
+      /* 设置按钮居中 */
+
+    }
+    #navDiv a{
+      /* 设置超链接的浮动 */
+      float: left;
+      /* 设置超链接的宽和高 */
+      width: 12px;
+      height: 12px;
+      /* 设置背景颜色 */
+      background-color: red;
+      /* 设置左右外边距 */
+      margin: 0 5px;
+      /* 设置透明 */
+      opacity: 0.5;
+      /* 兼容IE8透明 */
+      filter: alpha(opacity=50);
+      /* 设置为圆角 */
+      border-radius: 50%;
+    }
+    /* 设置鼠标移入的效果 */
+    #navDiv a:hover{
+      background-color: black;
+    }
+  </style>
+</head>
+<body>
+    <div id="outer">
+      <ul id="imgList">
+        <li><img src="./1.jpg" alt=""></li>
+        <li><img src="./2.jpg" alt=""></li>
+        <li><img src="./3.jpg" alt=""></li>
+        <li><img src="./4.jpg" alt=""></li>
+        <li><img src="./5.jpg" alt=""></li>
+        <!-- 如果有过渡效果，则回到第一张图片的中间，动画很恶心 -->
+        <li><img src="./1.jpg" alt=""></li>
+      </ul>
+      <!-- 创建导航按钮，可以用超链接 -->
+      <div id="navDiv">
+        <a href="javascript:;"></a>
+        <a href="javascript:;"></a>
+        <a href="javascript:;"></a>
+        <a href="javascript:;"></a>
+        <a href="javascript:;"></a>
+      </div>
+    </div>
+  <script>
+    
+    window.onload = function() {
+      //设置imgList的宽度
+      //获取imgList
+      let imgList = document.getElementById('imgList')
+      //获取所有img标签
+      let imgArr = document.getElementsByTagName('img');
+      // 设置imgList的宽度
+      imgList.style.width = 520*imgArr.length + 'px';
+      // 设置导航按钮居中
+      // 获取navDiv 子元素
+      let navDiv = document.getElementById('navDiv');
+      // 获取outer  父元素
+      let outer = document.getElementById('outer');
+      // 设置navDiv的left的值，实现居中
+      navDiv.style.left = (outer.offsetWidth - navDiv.offsetWidth)/2 + 'px';
+      // 默认显示图片的索引
+      var index = 0;
+      // 获取所以的a
+      var allA = document.getElementsByTagName('a');
+
+      // 设置默认选中效果
+      allA[index].style.backgroundColor = 'black';
+
+      //点击超链接切换到指定的图片，给所有超链接绑定单击响应函数
+      for(var i=0 ; i<allA.length ; i++){
+        //  为每一个超链接添加一个num属性
+        allA[i].num = i;
+        allA[i].onclick = function(){
+          // 点击的时候，需要先关闭定时器
+          clearInterval(timer);
+          // 获取点击超链接的索引
+          index = this.num;
+          setA();
+          // 切换图片
+          imgList.style.left = -520*index + 'px';
+
+          //动画执行完毕之后，需要重新开启动画
+          // 开启自动切换图片
+          autoChange();
+
+        }
+      }
+
+      // 刚打开页面的时候开启自动切换图片
+      autoChange();
+
+      function setA(){
+        // 判断当前索引是否为最后一张
+        if(index >= imgArr.length - 1){
+          // 则把index设为0，小圆点就自动把第一个变成黑色
+          index = 0;
+
+          //希望一瞬间可以切换成第一张，通过CSS设置
+          imgList.style.left = 0;
+        }
+        // 把所有的按钮都变为红色
+        for(var i=0 ; i<allA.length ;i++){
+          // 置为空就是默认样式了,如果在这里设置了颜色，那么hover的效果就消失了
+          allA[i].style.backgroundColor = '';
+        }
+        // 把选中的变为黑色
+        allA[index].style.backgroundColor = "black";
+      }
+
+      var timer;  //自动切换定时器标识
+      // 创建一个函数开启自动切换图片
+      function autoChange(){
+        timer = setInterval(() => {
+          // 索引自增实现自动切换图片
+          index++;
+          // 判断index的值
+          index %= imgArr.length;
+          // 执行动画，切换图片
+          imgList.style.left = -520*index + 'px';
+          // 修改导航按钮
+          setA();
+        }, 3000);
+      }
+    }
+  </script>
+
+</body>
+</html>
